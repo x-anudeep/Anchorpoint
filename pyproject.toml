@@ -1,0 +1,19 @@
+[project]
+name = "workflow-eval-sandbox"
+version = "0.1.0"
+description = "P3 sandbox execution service slice for workflow evaluation"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110",
+  "httpx>=0.27",
+  "pydantic>=2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "services/sandbox/src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
