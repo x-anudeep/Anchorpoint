@@ -1,0 +1,30 @@
+openapi: 3.1.0
+info:
+  title: Workflow Eval Sandbox Execution
+  version: 0.1.0
+paths:
+  /v1/deploy:
+    post:
+      summary: Deploy an artifact to the sandbox platform folder.
+      responses:
+        "200":
+          description: Platform acceptance result.
+  /v1/executions:
+    post:
+      summary: Start an asynchronous sandbox execution.
+      responses:
+        "202":
+          description: Execution accepted.
+  /v1/executions/{id}:
+    get:
+      summary: Poll execution status and collect traces.
+      responses:
+        "200":
+          description: Execution report.
+  /v1/assets:
+    get:
+      summary: Return deployed sandbox assets for Validation L2.
+      responses:
+        "200":
+          description: Asset registry.
+
