@@ -13,13 +13,39 @@ from wfeval_sandbox.models import (
     ExecutionRequest,
 )
 from wfeval_sandbox.repository import InMemoryExecutionRepository
+from wfeval_sandbox.settings import SandboxMode, UiPathSettings
 
 app = FastAPI(title="Workflow Eval Sandbox Execution", version="0.1.0")
 repository = InMemoryExecutionRepository()
+settings = UiPathSettings.from_env()
 
 
 @app.post("/v1/deploy", response_model=DeployResponse)
 def deploy(request: DeployRequest) -> DeployResponse:
+    if settings.mode == SandboxMode.DISABLED:
+        return DeployResponse(
+            accepted=False,
+            diagnostics=[
+                Diagnostic(
+                    code="PLT-DEPLOY-REJECTED",
+                    severity=Severity.ERROR,
+                    message="Sandbox deployment is disabled in this environment.",
+                    suggested_fix="Enable stub or live sandbox mode before requesting deployment.",
+                )
+            ],
+        )
+    if settings.mode == SandboxMode.LIVE and settings.missing_live_fields():
+        return DeployResponse(
+            accepted=False,
+            diagnostics=[
+                Diagnostic(
+                    code="PLT-DEPLOY-REJECTED",
+                    severity=Severity.ERROR,
+                    message="Live UiPath deployment is missing required configuration.",
+                    suggested_fix="Set UiPath OAuth and folder environment variables for Sandbox.",
+                )
+            ],
+        )
     if not request.artifact.content.strip():
         return DeployResponse(
             accepted=False,
@@ -52,4 +78,3 @@ def get_execution(execution_id: str) -> ExecutionReport:
 @app.get("/v1/assets", response_model=AssetRegistry)
 def get_assets() -> AssetRegistry:
     return repository.get_assets()
-
